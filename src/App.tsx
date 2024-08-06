@@ -1,5 +1,6 @@
 import { Box, Center, HStack, Spacer, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useGeolocated } from "react-geolocated";
 import screenfull from "screenfull";
 import { Border } from "./Border";
 import { Icon } from "./Icon";
@@ -11,6 +12,17 @@ function App() {
     const [fullscreen, setFullscreen] = useState(false);
     const [tab, setTab] = useState<"map" | "quests" | "social">("map");
 
+    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+        useGeolocated({
+            positionOptions: {
+                enableHighAccuracy: true,
+            },
+            watchPosition: true,
+            userDecisionTimeout: 10000,
+            suppressLocationOnMount: false,
+            geolocationProvider: navigator.geolocation,
+        });
+
     useEffect(() => {
         const interval = setInterval(() => {
             if (!screenfull.isFullscreen) {
@@ -19,6 +31,36 @@ function App() {
         }, 1000);
         return () => clearInterval(interval);
     });
+
+    if (!isGeolocationAvailable) {
+        return (
+            <Center bg="black" color="white" w="full" h="100vh">
+                <VStack alignItems="center" spacing={6}>
+                    <Text>
+                        The game requires geolocation
+                        <br />
+                        and your browser does not seem to enable it...
+                    </Text>
+                    <Icon size={64} x={35} y={21} />
+                </VStack>
+            </Center>
+        );
+    }
+
+    if (!isGeolocationEnabled) {
+        return (
+            <Center bg="black" color="white" w="full" h="100vh">
+                <VStack alignItems="center" spacing={6}>
+                    <Text>
+                        The game requires geolocation
+                        <br />
+                        and you have rejected it...
+                    </Text>
+                    <Icon size={64} x={35} y={21} />
+                </VStack>
+            </Center>
+        );
+    }
 
     if (!fullscreen) {
         return (
@@ -58,7 +100,7 @@ function App() {
                     <Text>1 964 XP</Text>
                 </UIDivider>
             </VStack>
-            {tab === "map" && <Map />}
+            {tab === "map" && <Map coords={coords} />}
             {tab === "quests" && <Quests />}
             {tab === "social" && <Box flexGrow={1}>Social</Box>}
             <HStack
