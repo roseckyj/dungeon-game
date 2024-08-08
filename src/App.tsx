@@ -1,10 +1,12 @@
 import { Box, Center, HStack, Spacer, Text, VStack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import screenfull from "screenfull";
-import { Border } from "./Border";
-import { Icon } from "./Icon";
-import { UIDivider } from "./UIDivider";
+import { Border } from "./components/Border";
+import { Icon } from "./components/Icon";
+import { UIDivider } from "./components/UIDivider";
+import { QuestStore } from "./quests/QuestStore";
+import { quests } from "./quests/quests";
 import { Map } from "./sections/map/Map";
 import { Quests } from "./sections/quests/Quests";
 
@@ -31,6 +33,13 @@ function App() {
         }, 1000);
         return () => clearInterval(interval);
     });
+
+    const store = useMemo(() => {
+        const store = new QuestStore(quests);
+        store.unlockedQuest("initial");
+
+        return store;
+    }, []);
 
     if (!isGeolocationAvailable) {
         return (
@@ -100,8 +109,8 @@ function App() {
                     <Text>1 964 XP</Text>
                 </UIDivider>
             </VStack>
-            {tab === "map" && <Map coords={coords} />}
-            {tab === "quests" && <Quests />}
+            {tab === "map" && <Map coords={coords} store={store} />}
+            {tab === "quests" && <Quests store={store} />}
             {tab === "social" && <Box flexGrow={1}>Social</Box>}
             <HStack
                 w="full"

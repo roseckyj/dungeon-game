@@ -1,6 +1,6 @@
 import { HStack, Text, VStack } from "@chakra-ui/react";
-import { Border } from "../../Border";
-import { Icon } from "../../Icon";
+import { Border } from "../../components/Border";
+import { Icon } from "../../components/Icon";
 
 export function Quest() {
     return (
