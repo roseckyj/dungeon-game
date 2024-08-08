@@ -6,7 +6,7 @@ export const quests: Quests = [
         title: "Test Quest",
         description: "This is a test quest.",
         type: "quest",
-        location: [49.5696814, 15.9451669],
+        location: [49.2100722, 16.5992989],
         initialStepId: "start",
         content: {
             start: {
