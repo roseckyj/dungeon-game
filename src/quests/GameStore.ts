@@ -6,6 +6,7 @@ export class GameStore {
     questState: Record<QuestID, QuestState> = {};
     quests: Quests;
     teamName = "Zmoklé Veverky";
+    members = ["John Doe", "Jane Doe", "Tvoje Máma", "Tvůj Táta"];
     score = 0;
 
     constructor(quests: Quests) {

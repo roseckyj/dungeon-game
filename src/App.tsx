@@ -6,6 +6,7 @@ import {
     Spinner,
     Text,
     VStack,
+    useForceUpdate,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useGeolocated } from "react-geolocated";
@@ -17,11 +18,14 @@ import { GameStore } from "./quests/GameStore";
 import { quests } from "./quests/quests";
 import { Map } from "./sections/map/Map";
 import { Quests } from "./sections/quests/Quests";
+import { Social } from "./sections/social/Social";
 import { formatNumber } from "./utils/formatNumber";
+import { getDistance } from "./utils/getDistance";
 
 function App() {
     const [fullscreen, setFullscreen] = useState(false);
     const [tab, setTab] = useState<"map" | "quests" | "social">("map");
+    const forceUpdate = useForceUpdate();
 
     const { coords, isGeolocationAvailable, isGeolocationEnabled } =
         useGeolocated({
@@ -49,6 +53,30 @@ function App() {
 
         return store;
     }, []);
+
+    useEffect(() => {
+        // This will be replaced by updates from the API
+        const interval = setInterval(() => {
+            forceUpdate();
+        }, 200);
+        return () => clearInterval(interval);
+    });
+
+    const nearby = useMemo(() => {
+        if (coords) {
+            const distances = store.activeQuests.map((quest) => ({
+                quest,
+                distance: getDistance(
+                    [coords.latitude, coords.longitude],
+                    quest.location
+                ),
+            }));
+            return distances
+                .filter(({ distance }) => distance < 100) // TODO: 20m
+                .map(({ quest }) => quest);
+        }
+        return [];
+    }, [coords, store.activeQuests]);
 
     if (!isGeolocationAvailable) {
         return (
@@ -131,7 +159,7 @@ function App() {
             </VStack>
             {tab === "map" && <Map coords={coords} store={store} />}
             {tab === "quests" && <Quests coords={coords} store={store} />}
-            {tab === "social" && <Box flexGrow={1}>Social</Box>}
+            {tab === "social" && <Social coords={coords} store={store} />}
             <HStack
                 w="full"
                 pt={3}
@@ -150,6 +178,18 @@ function App() {
                     onClick={() => setTab("map")}
                 >
                     <Icon size={32} x={32} y={15} />
+                    {nearby.length > 0 && (
+                        <Box
+                            bg="red"
+                            border="solid 3px black"
+                            boxSizing="content-box"
+                            w={2}
+                            h={2}
+                            position="absolute"
+                            top="12px"
+                            right="12px"
+                        />
+                    )}
                 </Border>
                 <Border
                     borderPath="/Border/panel-border-007.png"
@@ -170,16 +210,6 @@ function App() {
                     onClick={() => setTab("social")}
                 >
                     <Icon size={32} x={44} y={16} />
-                    <Box
-                        bg="red"
-                        border="solid 3px black"
-                        boxSizing="content-box"
-                        w={2}
-                        h={2}
-                        position="absolute"
-                        top="12px"
-                        right="12px"
-                    />
                 </Border>
                 <Spacer />
             </HStack>
