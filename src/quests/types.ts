@@ -1,4 +1,4 @@
-import { QuestStore } from "./QuestStore";
+import { GameStore } from "./GameStore";
 
 export type Quests = Quest[];
 
@@ -6,7 +6,8 @@ export type Quest = {
     id: QuestID;
     title: string;
     type: "quest" | "task";
-    description: string;
+    showInQuestBook?: boolean;
+    questbookSummary?: string;
     location: [number, number];
     content: QuestContent;
     initialStepId: QuestStepID;
@@ -38,7 +39,7 @@ export type QuestContentBlock =
       };
 
 export type QuestEvaluator = (
-    store: QuestStore,
+    store: GameStore,
     buttonID: ContentBlockID,
     inputs: Record<ContentBlockID, string>
 ) => QuestStepID | null | void;

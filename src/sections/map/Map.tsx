@@ -1,44 +1,21 @@
 import { Box, Flex } from "@chakra-ui/react";
-import { DivIcon } from "leaflet";
 import { useMemo, useState } from "react";
-import * as ReactDOMServer from "react-dom/server";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import { Border } from "../../components/Border";
 import { Icon } from "../../components/Icon";
-import { IconNative } from "../../components/IconNative";
-import { QuestStore } from "../../quests/QuestStore";
+import { GameStore } from "../../quests/GameStore";
 import { Quest } from "../../quests/types";
+import { getDistance } from "../../utils/getDistance";
+import { exclamation, location, question } from "../../utils/icons";
 import { Dialogue } from "../dialogue/Dialogue";
 
 export interface IMapProps {
     coords?: GeolocationCoordinates;
-    store: QuestStore;
+    store: GameStore;
 }
 
 export function Map({ coords, store }: IMapProps) {
     const [quest, setQuest] = useState<Quest | null>(null);
-
-    const getDistance = (
-        coord1: [number, number],
-        coord2: [number, number]
-    ): number => {
-        const radius = 6371e3; // Earth's radius in meters
-        const [lat1, lon1] = coord1.map((degree) => (degree * Math.PI) / 180); // Convert degrees to radians
-        const [lat2, lon2] = coord2.map((degree) => (degree * Math.PI) / 180); // Convert degrees to radians
-
-        const deltaLat = lat2 - lat1;
-        const deltaLon = lon2 - lon1;
-
-        const a =
-            Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-            Math.cos(lat1) *
-                Math.cos(lat2) *
-                Math.sin(deltaLon / 2) *
-                Math.sin(deltaLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return radius * c; // Distance in meters
-    };
 
     const nearby = useMemo(() => {
         if (coords) {
@@ -54,59 +31,7 @@ export function Map({ coords, store }: IMapProps) {
                 .map(({ quest }) => quest);
         }
         return [];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [coords]);
-
-    const exclamation = (highlighted: boolean) =>
-        new DivIcon({
-            html: ReactDOMServer.renderToString(
-                <IconNative
-                    size={32}
-                    x={35}
-                    y={13}
-                    highlight={highlighted ? 0 : undefined}
-                    filter={
-                        highlighted ? "saturate(30%) brightness(2)" : undefined
-                    }
-                />
-            ),
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            tooltipAnchor: [0, -16],
-        });
-
-    const question = (highlighted: boolean) =>
-        new DivIcon({
-            html: ReactDOMServer.renderToString(
-                <IconNative
-                    size={32}
-                    x={37}
-                    y={13}
-                    highlight={highlighted ? 0 : undefined}
-                    filter={
-                        highlighted ? "saturate(30%) brightness(2)" : undefined
-                    }
-                />
-            ),
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            tooltipAnchor: [0, -16],
-        });
-
-    const location = new DivIcon({
-        html: ReactDOMServer.renderToString(
-            <IconNative
-                size={32}
-                x={28}
-                y={0}
-                highlight={30}
-                filter="saturate(50%) brightness(5) saturate(2)"
-            />
-        ),
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        tooltipAnchor: [0, 0],
-    });
+    }, [coords, store.activeQuests]);
 
     return (
         <Flex

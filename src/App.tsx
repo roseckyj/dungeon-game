@@ -1,14 +1,23 @@
-import { Box, Center, HStack, Spacer, Text, VStack } from "@chakra-ui/react";
+import {
+    Box,
+    Center,
+    HStack,
+    Spacer,
+    Spinner,
+    Text,
+    VStack,
+} from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import screenfull from "screenfull";
 import { Border } from "./components/Border";
 import { Icon } from "./components/Icon";
 import { UIDivider } from "./components/UIDivider";
-import { QuestStore } from "./quests/QuestStore";
+import { GameStore } from "./quests/GameStore";
 import { quests } from "./quests/quests";
 import { Map } from "./sections/map/Map";
 import { Quests } from "./sections/quests/Quests";
+import { formatNumber } from "./utils/formatNumber";
 
 function App() {
     const [fullscreen, setFullscreen] = useState(false);
@@ -35,7 +44,7 @@ function App() {
     });
 
     const store = useMemo(() => {
-        const store = new QuestStore(quests);
+        const store = new GameStore(quests);
         store.unlockedQuest("initial");
 
         return store;
@@ -92,6 +101,17 @@ function App() {
         );
     }
 
+    if (!coords) {
+        return (
+            <Center bg="black" color="white" w="full" h="100vh">
+                <VStack alignItems="center" spacing={6}>
+                    <Text>Waiting for geolocation...</Text>
+                    <Spinner />
+                </VStack>
+            </Center>
+        );
+    }
+
     return (
         <VStack
             w="full"
@@ -103,14 +123,14 @@ function App() {
         >
             <VStack alignItems="center" py={5} spacing={0}>
                 <Text fontSize="2xl" fontWeight="bold">
-                    Zmoklé veverky
+                    {store.teamName}
                 </Text>
                 <UIDivider divider="/Divider Fade/divider-fade-003.png">
-                    <Text>1 964 XP</Text>
+                    <Text>{formatNumber(store.score)} XP</Text>
                 </UIDivider>
             </VStack>
             {tab === "map" && <Map coords={coords} store={store} />}
-            {tab === "quests" && <Quests store={store} />}
+            {tab === "quests" && <Quests coords={coords} store={store} />}
             {tab === "social" && <Box flexGrow={1}>Social</Box>}
             <HStack
                 w="full"

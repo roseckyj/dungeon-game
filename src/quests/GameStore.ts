@@ -2,9 +2,11 @@ import { QuestID, Quests } from "./types";
 
 export type QuestState = "active" | "completed" | "locked";
 
-export class QuestStore {
+export class GameStore {
     questState: Record<QuestID, QuestState> = {};
     quests: Quests;
+    teamName = "Zmoklé Veverky";
+    score = 0;
 
     constructor(quests: Quests) {
         this.quests = quests;
@@ -19,6 +21,10 @@ export class QuestStore {
 
     completeQuest(questId: QuestID) {
         this.questState[questId] = "completed";
+    }
+
+    addScore(points: number) {
+        this.score += points;
     }
 
     private filterByState(state: QuestState) {

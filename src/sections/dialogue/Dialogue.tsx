@@ -3,11 +3,11 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Border } from "../../components/Border";
 import { UIDivider } from "../../components/UIDivider";
-import { QuestStore } from "../../quests/QuestStore";
+import { GameStore } from "../../quests/GameStore";
 import { Quest } from "../../quests/types";
 
 export interface IDialogueProps {
-    store: QuestStore;
+    store: GameStore;
     quest: Quest;
     onClose: () => void;
 }
